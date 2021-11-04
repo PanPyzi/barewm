@@ -39,10 +39,15 @@
 void OnMapRequest(Display* dpy,const XMapRequestEvent& ev);
 void OnCreateNotify(const XCreateWindowEvent& ev);
 void OnDestroyNotify(const XDestroyWindowEvent& ev);
+void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop);
 
 int main()
 {
+   int desktop;
     std::vector<Window> clients;
+    std::vector<Window> desktop_1;
+    std::vector<Window> desktop_2;
+
     Display*    dpy     = XOpenDisplay(0);
     Window      root_     = DefaultRootWindow(dpy);
     XEvent      ev;
@@ -97,6 +102,7 @@ int main()
 
     while(true)
     {
+      desktop =1;
       printf("R");
         ev.xkey.keycode = 0;
         ev.xkey.state = 0;
@@ -108,6 +114,8 @@ int main()
             case CreateNotify:
                OnCreateNotify(ev.xcreatewindow);
                clients.push_back(ev.xcreatewindow.window);
+               if(desktop==1) desktop_1.push_back(ev.xcreatewindow.window);
+               if(desktop==2) desktop_2.push_back(ev.xcreatewindow.window);
                printf("Window created: %lx, Client: %lx",ev.xcreatewindow.window, clients.back());
                break;
             case DestroyNotify:
@@ -148,13 +156,26 @@ int main()
 
 	}
    if(ev.xkey.keycode==s_key && ev.xkey.type ==KeyPress){
-      XResizeWindow(dpy, clients.back(), 300, 300);
+      sortWindows(dpy,desktop_1,desktop);
 
     }
 
  }
     XCloseDisplay(dpy);
     return 0;
+
+}
+
+void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop){
+
+   if (desktop==1){
+      int height = 600/desktop_1.size();
+      int width = 800/desktop_1.size();
+      for(int i=0;i<desktop_1.size();i++){
+         XResizeWindow(dpy, desktop_1.at(i), width, height);
+         XMoveWindow(dpy, desktop_1.at(i),width*i,0);
+      }
+   }
 
 }
 
