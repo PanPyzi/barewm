@@ -123,6 +123,7 @@ int main()
                break;
             case DestroyNotify:
                   OnDestroyNotify(ev.xdestroywindow);
+                  sortWindows(dpy,desktop_1,desktop,sort);
             case KeyPress:
                 printf ("Press %lx: d-%d\n", ev.xkey.window, ev.xkey.state, ev.xkey.keycode);
                 break;
@@ -221,13 +222,19 @@ if (desktop==1&&sort==1){
 
          }
       }else{
-         if(desktop_1.size()>1){
+         if(desktop_1.size()>1 && desktop_1.size()<5){
             width /=desktop_1.size()-1;
-            height /=2;
-            rows=2;
+            height /=rows;
+
+         }
+         if(desktop_1.size()>=5){
+            int g=2;
+            for(int i=5;i<desktop_1.size();i++)if(i%2!=0)g++;
+            width /=desktop_1.size()-g;
+            height /=rows;
          }
          for(int j=0;j<rows;j++){///////ADD FUNCTION FOR WHEN NUM OF WINDOWS ISNT 2%==0
-            for(int i=0 ; i< desktop_1.size()/(rows+1);i++){
+            for(int i=0 ; i< desktop_1.size()/(rows);i++){
                if(j==0){
                   XMoveResizeWindow(dpy, desktop_1.at(k), width*(i), height*j, width, height);
                   printf("sort=2/3 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*(i), height*j, width, height);
