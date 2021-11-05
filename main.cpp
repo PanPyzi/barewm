@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <vector>
-
+#include <unistd.h>
 
 
 
@@ -39,11 +39,13 @@
 void OnMapRequest(Display* dpy,const XMapRequestEvent& ev);
 void OnCreateNotify(const XCreateWindowEvent& ev);
 void OnDestroyNotify(const XDestroyWindowEvent& ev);
-void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop);
+void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop, int sort);
 
 int main()
 {
-   int desktop;
+   int desktop = 1;//default virtual desktop
+   int sort = 2;//default tiling 0-floating, 1-simple tiling
+   int sorttypes=2;
     std::vector<Window> clients;
     std::vector<Window> desktop_1;
     std::vector<Window> desktop_2;
@@ -102,7 +104,7 @@ int main()
 
     while(true)
     {
-      desktop =1;
+
       printf("R");
         ev.xkey.keycode = 0;
         ev.xkey.state = 0;
@@ -116,7 +118,8 @@ int main()
                clients.push_back(ev.xcreatewindow.window);
                if(desktop==1) desktop_1.push_back(ev.xcreatewindow.window);
                if(desktop==2) desktop_2.push_back(ev.xcreatewindow.window);
-               printf("Window created: %lx, Client: %lx",ev.xcreatewindow.window, clients.back());
+               //printf("Window created: %lx, Client: %lx",ev.xcreatewindow.window, clients.back());
+
                break;
             case DestroyNotify:
                   OnDestroyNotify(ev.xdestroywindow);
@@ -131,14 +134,19 @@ int main()
             case MapNotify:
                OnMapRequest(dpy,ev.xmaprequest);
                 printf ("Mapped %lx\n", ev.xmap.window);
+                sortWindows(dpy,desktop_1,desktop,sort);
       //          dowin (dpy, ev.xmap.window, True);
                 break;
 
             case UnmapNotify:
-                printf ("Unmapped %lx\n", ev.xunmap.window);
+               // printf ("Unmapped %lx\n", ev.xunmap.window);
+                sortWindows(dpy,desktop_1,desktop,sort);
    //             dowin (dpy, ev.xunmap.window, False);
                 break;
-
+           case ConfigureNotify:
+                  printf ("Configured %lx\n", ev.xconfigurerequest.window);
+      //             dowin (dpy, ev.xunmap.window, False);
+               break;
             default:
                 printf ("Event type %d\n", ev.type);
                 break;
@@ -147,16 +155,18 @@ int main()
            break;
         }
 	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
-	printf("Xterm started");
+	//printf("Xterm started");
 
 	system("xterm & disown");
    //sleep(3);
-   printf("\nWindow: %d , subwindow: %d",ev.xkey.window,ev.xkey.subwindow);
-   printf("\nWindow 1created: %lx\n",ev.xcreatewindow.window);
+   //printf("\nWindow: %d , subwindow: %d",ev.xkey.window,ev.xkey.subwindow);
+   //printf("\nWindow 1created: %lx\n",ev.xcreatewindow.window);
 
 	}
    if(ev.xkey.keycode==s_key && ev.xkey.type ==KeyPress){
-      sortWindows(dpy,desktop_1,desktop);
+   if(sort<sorttypes)sort++;
+   else sort=1;
+      sortWindows(dpy,desktop_1,desktop,sort);
 
     }
 
@@ -166,19 +176,77 @@ int main()
 
 }
 
-void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop){
+void sortWindows(Display* dpy,std::vector<Window> desktop_1,int desktop, int sort){
+int rows=2,k=0;
+Screen *screen= XDefaultScreenOfDisplay(dpy);
+int height =XHeightOfScreen(screen);
+int width =XWidthOfScreen(screen);
 
-   if (desktop==1){
-      int height = 600/desktop_1.size();
-      int width = 800/desktop_1.size();
+//if(desktop_1.size()==1)XMoveResizeWindow(dpy, desktop_1.at(0), 0, 0, 400, 300);
+//if(desktop_1.size()==2)XMoveResizeWindow(dpy, desktop_1.at(1), 400, 0, 400, 300);
+//if(desktop_1.size()==3)XMoveResizeWindow(dpy, desktop_1.at(2), 0, 300, 400, 300);
+//if(desktop_1.size()==4)XMoveResizeWindow(dpy, desktop_1.at(3), 400, 300, 400, 300);
+
+if (desktop==1&&sort==1){
+       width /=desktop_1.size();
       for(int i=0;i<desktop_1.size();i++){
-         XResizeWindow(dpy, desktop_1.at(i), width, height);
-         XMoveWindow(dpy, desktop_1.at(i),width*i,0);
+
+         XMoveResizeWindow(dpy, desktop_1.at(i), width*i, 0, width, height);
+         printf(" sort=1 W: %d, H: %d, w: %d, h %d\n",width*(i), 0, width, height);
       }
    }
 
-}
+   if (desktop==1&&sort==2){
 
+      if(desktop_1.size()%2==0){
+         if(desktop_1.size()>=2||desktop_1.size()<=4){
+            width /=(desktop_1.size()/2);
+            height /=2;
+            rows=2;
+            }
+
+         for(int j=0;j<rows;j++){///////ADD FUNCTION FOR WHEN NUM OF WINDOWS ISNT 2%==0
+            for(int i=0 ; i< desktop_1.size()/rows ;i++){
+               if(j==0){
+                  XMoveResizeWindow(dpy, desktop_1.at(k), width*(i), height*j, width, height);
+                  printf("sort=2 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*(i), height*j, width, height);
+               }else{
+                  XMoveResizeWindow(dpy, desktop_1.at(k), width*(i-j+1), height*j, width, height);
+
+               printf("sort=2 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*(i-j+1), height*j, width, height);
+               }
+
+            k++;
+            }
+
+         }
+      }else{
+         if(desktop_1.size()>1){
+            width /=desktop_1.size()-1;
+            height /=2;
+            rows=2;
+         }
+         for(int j=0;j<rows;j++){///////ADD FUNCTION FOR WHEN NUM OF WINDOWS ISNT 2%==0
+            for(int i=0 ; i< desktop_1.size()/(rows+1);i++){
+               if(j==0){
+                  XMoveResizeWindow(dpy, desktop_1.at(k), width*(i), height*j, width, height);
+                  printf("sort=2/3 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*(i), height*j, width, height);
+               }else{
+                  XMoveResizeWindow(dpy, desktop_1.at(k), width*(i-j+1), height*j, width, height);
+
+               printf("sort=2/3 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*(i-j+1), height*j, width, height);
+               }
+
+            k++;
+            }
+
+         }
+         XMoveResizeWindow(dpy, desktop_1.back(), width*((desktop_1.size()/rows)), 0, width, height*2);
+         printf("sort=2/3 win: %lx, W: %d, H: %d, w: %d, h %d\n",desktop_1.at(k),width*((desktop_1.size()/rows)), 0, width, height*2);
+      }
+   }
+   printf("\nSorted \n");
+}
 void OnMapRequest(Display* dpy,const XMapRequestEvent& ev) {
   // 1. Frame or re-frame window.
   //Frame(e.window, false);
