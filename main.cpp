@@ -67,7 +67,11 @@ int main()
     KeyCode         alt_key      = XKeysymToKeycode(dpy,XK_Alt_L);
     //Window menu=XCreateSimpleWindow(dpy, root_, 0, 0, 10, 10, 10,
                                  //0x0000ff, 0x00000f);
+<<<<<<< HEAD
    //XMapWindow(dpy, menu);
+=======
+   XMapWindow(dpy, menu);
+>>>>>>> d83ca5c67cb36411555161a6627d1c7d92f657d8
 
    //ds        qqqqq dowin (dpy, win, True);
    XSelectInput(dpy, root_, SubstructureNotifyMask);
@@ -166,10 +170,17 @@ int main()
              if(clients[i].win==ev.xkey.subwindow){
                   printf ("SEARCHED FOR: %lx\n", ev.xkey.subwindow);
                   printf ("FOUND: %lx\n", clients[i].win);
+<<<<<<< HEAD
                   killWindow(dpy, clients[i].win);
                  clients.erase(clients.begin() + i);
                  break;}
             }
+=======
+                 clients.erase(clients.begin() + i);
+                 break;}
+            }
+            killWindow(dpy, ev.xkey.subwindow);
+>>>>>>> d83ca5c67cb36411555161a6627d1c7d92f657d8
         }
 	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
 	//printf("Xterm started");
