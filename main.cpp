@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 #include <unistd.h>
-
+#include <typeinfo>
 
 
 
@@ -65,13 +65,8 @@ int main()
     KeyCode	    enter_key		=XKeysymToKeycode(dpy,XK_D);
     KeyCode         q_key      = XKeysymToKeycode(dpy,XK_Q);
     KeyCode         alt_key      = XKeysymToKeycode(dpy,XK_Alt_L);
-    //Window menu=XCreateSimpleWindow(dpy, root_, 0, 0, 10, 10, 10,
-                                 //0x0000ff, 0x00000f);
-<<<<<<< HEAD
-   //XMapWindow(dpy, menu);
-=======
-   XMapWindow(dpy, menu);
->>>>>>> d83ca5c67cb36411555161a6627d1c7d92f657d8
+    //Window menu=XCreateSimpleWindow(dpy, root_, 0, 0, 10, 10, 10, 0x0000ff, 0x00000f);
+   // XMapWindow(dpy, menu);
 
    //ds        qqqqq dowin (dpy, win, True);
    XSelectInput(dpy, root_, SubstructureNotifyMask);
@@ -170,17 +165,11 @@ int main()
              if(clients[i].win==ev.xkey.subwindow){
                   printf ("SEARCHED FOR: %lx\n", ev.xkey.subwindow);
                   printf ("FOUND: %lx\n", clients[i].win);
-<<<<<<< HEAD
-                  killWindow(dpy, clients[i].win);
+                  printf ("Type: %lx\n", typeid(clients[i].win).name());
+                  if(typeid(clients[i].win).name()==typeid(root_).name()) killWindow(dpy, clients[i].win);
                  clients.erase(clients.begin() + i);
                  break;}
             }
-=======
-                 clients.erase(clients.begin() + i);
-                 break;}
-            }
-            killWindow(dpy, ev.xkey.subwindow);
->>>>>>> d83ca5c67cb36411555161a6627d1c7d92f657d8
         }
 	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
 	//printf("Xterm started");
@@ -210,7 +199,7 @@ Screen *screen= XDefaultScreenOfDisplay(dpy);
 int height =XHeightOfScreen(screen);
 int width =XWidthOfScreen(screen);
 
-
+if(clients.size()==0) return;
 if (desktop==1&&sort==1){
        width /=clients.size();
       for(int i=0;i<clients.size();i++){
@@ -233,7 +222,7 @@ if (desktop==1&&sort==1){
             for(int i=0 ; i< clients.size()/rows ;i++){
                if(j==0){
                   XMoveResizeWindow(dpy, clients.at(i).win, width*(i), height*j, width, height);
-                  printf("sort=2 win: %lx, W: %d, H: %d, w: %d, h %d\n",clients.at(i).win,clients.size(), height*j, width, height);
+                  printf("sort=2 win: %lx, W: %d, H: %d, w: %d, h %d\n",clients.at(i+1).win,clients.size(), height*j, width, height);
                }else{
                   XMoveResizeWindow(dpy, clients.at(k).win, width*(i-j+1), height*j, width, height);
 
