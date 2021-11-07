@@ -44,7 +44,7 @@ void OnMapRequest(Display* dpy,const XMapRequestEvent& ev);
 void OnCreateNotify(const XCreateWindowEvent& ev);
 void OnDestroyNotify(const XDestroyWindowEvent& ev);
 void sortWindows(Display* dpy,std::vector<client> clients,int desktop, int sort);
-
+void killWindow(Display* dpy, Window w);
 
 
 int main()
@@ -65,6 +65,9 @@ int main()
     KeyCode	    enter_key		=XKeysymToKeycode(dpy,XK_D);
     KeyCode         q_key      = XKeysymToKeycode(dpy,XK_Q);
     KeyCode         alt_key      = XKeysymToKeycode(dpy,XK_Alt_L);
+    //Window menu=XCreateSimpleWindow(dpy, root_, 0, 0, 10, 10, 10,
+                                 //0x0000ff, 0x00000f);
+   //XMapWindow(dpy, menu);
 
    //ds        qqqqq dowin (dpy, win, True);
    XSelectInput(dpy, root_, SubstructureNotifyMask);
@@ -131,7 +134,7 @@ int main()
                   OnDestroyNotify(ev.xdestroywindow);
                   sortWindows(dpy,clients,desktop,sort);
             case KeyPress:
-                printf ("Press %lx: d-%d\n", ev.xkey.window, ev.xkey.state, ev.xkey.keycode);
+                printf ("Press %lx: %lx-%lx\n", ev.xkey.root, ev.xkey.window, ev.xkey.subwindow);
                 break;
 
             case KeyRelease:
@@ -159,7 +162,14 @@ int main()
                 break;
         }
         if(ev.xkey.keycode==q_key && ev.xkey.type == KeyPress){
-           break;
+           for(int i=0;i<clients.size();i++){
+             if(clients[i].win==ev.xkey.subwindow){
+                  printf ("SEARCHED FOR: %lx\n", ev.xkey.subwindow);
+                  printf ("FOUND: %lx\n", clients[i].win);
+                  killWindow(dpy, clients[i].win);
+                 clients.erase(clients.begin() + i);
+                 break;}
+            }
         }
 	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
 	//printf("Xterm started");
@@ -262,6 +272,12 @@ void OnMapRequest(Display* dpy,const XMapRequestEvent& ev) {
   // 2. Actually map window.
   XMapWindow(dpy, ev.window);
   return 0;
+}
+
+void killWindow(Display* dpy, Window w){
+   printf("Kill %lx\n",w);
+   XKillClient(dpy, w);
+
 }
 
 
