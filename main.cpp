@@ -17,6 +17,8 @@ void OnDestroyNotify(const XDestroyWindowEvent& ev);
 void SortWindows(Display* dpy,std::vector<client> clients,int desktop, int sort, int desktopWin);
 void ChangeVDesktop(Display* dpy,std::vector<client> clients,int desktop, int sort);
 void KillWindow(Display* dpy, Window w);
+//std::string terminal="xterm";
+
 
 
 int main()
@@ -34,27 +36,42 @@ int main()
 
     unsigned int    alt_modmask       = Mod1Mask;
     unsigned int    ignored_modmask   = 0; // stub
-    KeyCode	    key_1		=XKeysymToKeycode(dpy,XK_1);
-    KeyCode	    key_2		=XKeysymToKeycode(dpy,XK_2);
-    KeyCode	    s_key		=XKeysymToKeycode(dpy,XK_S);
-    KeyCode	    enter_key		=XKeysymToKeycode(dpy,XK_D);
-    KeyCode         q_key      = XKeysymToKeycode(dpy,XK_Q);
-    KeyCode         alt_key      = XKeysymToKeycode(dpy,XK_Alt_L);
+
     //Window menu=XCreateSimpleWindow(dpy, root_, 0, 0, 10, 10, 10, 0x0000ff, 0x00000f);
    // XMapWindow(dpy, menu);
 
-   //ds        qqqqq dowin (dpy, win, True);
+   const KeyCode	    key_1		=XKeysymToKeycode(dpy,XK_1);
+   const KeyCode	    key_2		=XKeysymToKeycode(dpy,XK_2);
+   const KeyCode	    key_3		=XKeysymToKeycode(dpy,XK_3);
+   const KeyCode	    key_4		=XKeysymToKeycode(dpy,XK_4);
+   const KeyCode	    key_5		=XKeysymToKeycode(dpy,XK_5);
+   const KeyCode	    key_6		=XKeysymToKeycode(dpy,XK_6);
+   const KeyCode	    key_7		=XKeysymToKeycode(dpy,XK_7);
+   const KeyCode	    key_8		=XKeysymToKeycode(dpy,XK_8);
+   const KeyCode	    key_9		=XKeysymToKeycode(dpy,XK_9);
+   const KeyCode	    key_0		=XKeysymToKeycode(dpy,XK_0);
+
+   const KeyCode	    s_key		=XKeysymToKeycode(dpy,XK_S);
+   const KeyCode	    enter_key		=XKeysymToKeycode(dpy,XK_D);
+   const KeyCode         q_key      = XKeysymToKeycode(dpy,XK_Q);
+   const KeyCode         alt_key      = XKeysymToKeycode(dpy,XK_Alt_L);
+
    XSelectInput(dpy, root_, SubstructureNotifyMask);
    XSync(dpy,false);
 
-    XGrabKey (dpy, q_key, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
-
+   XGrabKey (dpy, q_key, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
    XGrabKey (dpy, s_key, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
    XGrabKey (dpy, enter_key, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
    XGrabKey (dpy, key_1, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
    XGrabKey (dpy, key_2, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
-
-
+   XGrabKey (dpy, key_3, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_4, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_5, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_6, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_7, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_8, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_9, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
+   XGrabKey (dpy, key_0, alt_modmask | ignored_modmask, root_, True, GrabModeAsync, GrabModeAsync);
    XGrabServer(dpy);
 
 
@@ -114,6 +131,7 @@ int main()
                   OnDestroyNotify(ev.xdestroywindow);
                   SortWindows(dpy,clients,desktop,sort,desktopWin[desktop]);
             case KeyPress:
+               //OnKeyPress()
                 printf ("Press %lx: %lx-%lx\n", ev.xkey.root, ev.xkey.window, ev.xkey.subwindow);
                 break;
 
@@ -142,46 +160,42 @@ int main()
                 break;
         }
 
-        ///////////////////////////////////////////////////////////
-        ////                                                   ////
-        ////            !! Switch ifs to cases !!              ////
-        ////                                                   ////
-        ///////////////////////////////////////////////////////////
 
-       if(ev.xkey.keycode==key_1 && ev.xkey.type == KeyPress){
-           desktop=1;
-           printf("desktop1\n");
-           //ChangeVDesktop(dpy,clients,desktop,sort);
-           SortWindows(dpy,clients,desktop,sort,desktopWin[desktop]);
+        if(ev.xkey.keycode==key_1 && ev.xkey.type == KeyPress){
+                 desktop=1;
+                 printf("desktop1\n");
+                 //ChangeVDesktop(dpy,clients,desktop,sort);
+                 SortWindows(dpy,clients,desktop,sort,desktopWin[desktop]);
 
-         }
-       if(ev.xkey.keycode==key_2 && ev.xkey.type == KeyPress){
-           desktop=2;
-           printf("desktop2\n");
-           //ChangeVDesktop(dpy,clients,desktop,sort);
-           SortWindows(dpy,clients,desktop,sort,desktopWin[desktop]);
-         }
-        if(ev.xkey.keycode==q_key && ev.xkey.type == KeyPress){
-           for(long unsigned int i=0;i<clients.size();i++){
-             if(clients[i].win==ev.xkey.subwindow){
-                  printf ("SEARCHED FOR: %lx\n", ev.xkey.subwindow);
-                  printf ("FOUND: %lx\n", clients[i].win);
-                  printf ("Type: %s\n", typeid(clients[i].win).name());
-                  if(typeid(clients[i].win).name()==typeid(root_).name()) KillWindow(dpy, clients[i].win);
-                 clients.erase(clients.begin() + i);
-                 break;
                }
-            }
-        }
-	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
-	//printf("Xterm started");
+             if(ev.xkey.keycode==key_2 && ev.xkey.type == KeyPress){
+                 desktop=2;
+                 printf("desktop2\n");
+                 //ChangeVDesktop(dpy,clients,desktop,sort);
+                 SortWindows(dpy,clients,desktop,sort,desktopWin[desktop]);
+               }
+              if(ev.xkey.keycode==q_key && ev.xkey.type == KeyPress){
+                 for(long unsigned int i=0;i<clients.size();i++){
+                   if(clients[i].win==ev.xkey.subwindow){
+                        printf ("SEARCHED FOR: %lx\n", ev.xkey.subwindow);
+                        printf ("FOUND: %lx\n", clients[i].win);
+                        printf ("Type: %s\n", typeid(clients[i].win).name());
+                        if(typeid(clients[i].win).name()==typeid(root_).name()) KillWindow(dpy, clients[i].win);
+                       clients.erase(clients.begin() + i);
+                       break;
+                     }
+                  }
+              }
+      	if(ev.xkey.keycode==enter_key && ev.xkey.type ==KeyPress){
+      	//printf("Xterm started");
 
-	system("xterm & disown");
-   //sleep(3);
-   //printf("\nWindow: %d , subwindow: %d",ev.xkey.window,ev.xkey.subwindow);
-   //printf("\nWindow 1created: %lx\n",ev.xcreatewindow.window);
+      	system("xterm & disown");
+         //sleep(3);
+         //printf("\nWindow: %d , subwindow: %d",ev.xkey.window,ev.xkey.subwindow);
+         //printf("\nWindow 1created: %lx\n",ev.xcreatewindow.window);
 
-	}
+      	}
+
    if(ev.xkey.keycode==s_key && ev.xkey.type ==KeyPress){
    if(sort<sorttypes)sort++;
    else sort=1;
@@ -202,9 +216,17 @@ int height =XHeightOfScreen(screen);
 int width =XWidthOfScreen(screen);
 long unsigned int size = clients.size();
 printf("Desktop= %d\n",desktop);
-if(size==0) return;
+if(size==0||desktopWin==0) return;
+// if(desktopWin==0){
+//    for(long unsigned int i=0;i<size;i++){
+//       if(clients[i].visible==true){
+//          XUnmapWindow(dpy,clients[i].win);
+//          clients[i].visible=false;
+//       }
+//    }
+// }
 if (sort==1){
-       if(desktopWin!=0)width /=desktopWin;
+       width/=desktopWin;
       for(long unsigned int i=0;i<size;i++){
          if(clients[k].desktop==desktop){
             XMoveResizeWindow(dpy, clients[k].win, width*d, 0, width, height);
@@ -237,21 +259,23 @@ if (sort==1){
             rows=2;
             }
 
-         for(int j=0;j<rows;j++){///////ADD FUNCTION FOR WHEN NUM OF WINDOWS ISNT 2%==0
-            for(long unsigned int i=0 ; i< desktopWin/rows ;i++){
-               if(clients.at(k).desktop==desktop){
+         for(int j=0;j<rows;j++){
+            d=0;
+            int i=0;
+            while(i!=desktopWin/rows){
+               if(clients.at(k).desktop==desktop){ i++;
                   if(j==0){
                      XMoveResizeWindow(dpy, clients.at(k).win, width*(d), height*j, width, height);
-                     printf("sort=2 win: %ld, W: %ld, H: %d, w: %d, h %d\n",clients.at(d+1).win,width*d, height*j, width, height);
+                     printf("sort=2 win: %lx, W: %ld, H: %d, w: %d, h %d\n",clients.at(d+1).win,width*d, height*j, width, height);
                   }else{
-                     XMoveResizeWindow(dpy, clients.at(k).win, width*(d-j), height*j, width, height);
+                     XMoveResizeWindow(dpy, clients.at(k).win, width*(d-j+1), height*j, width, height);
 
-                     printf("sort=2 win: %ld, W: %ld, H: %d, w: %d, h %d\n",clients.at(k).win,width*(d-j), height*j, width, height);
+                     printf("sort=2 win: %lx, W: %ld, H: %d, w: %d, h %d\n",clients.at(k).win,width*(d-j+1), height*j, width, height);
                   }
-                  if(clients[k].visible!=true){
-                     XMapWindow(dpy,clients[k].win);
-                     clients[k].visible=true;
-                  }
+
+                      XMapWindow(dpy,clients[k].win);
+                      clients[k].visible=true;
+                  
                   d++;
                   printf("D: %d \n",d);
                }
@@ -274,21 +298,26 @@ if (sort==1){
             width /=desktopWin-g;
             height /=rows;
          }
-         for(int j=0;j<rows;j++){///////ADD FUNCTION FOR WHEN NUM OF WINDOWS ISNT 2%==0
-            for(long unsigned int i=0 ; i< desktopWin/(rows);i++){
+         for(int j=0;j<rows;j++){
+            d=0;
+            int i=0;
+            while(i!=desktopWin/rows){
+               i++;
                   if(clients.at(i).desktop==desktop){
                      if(j==0){
                         XMoveResizeWindow(dpy, clients.at(k).win, width*(d), height*j, width, height);
                         printf("sort=2/3 win: %lx, W: %ld, H: %d, w: %d, h %d\n",clients.at(k).win,width*(d), height*j, width, height);
                      }else{
-                        XMoveResizeWindow(dpy, clients.at(k).win, width*(j+1), height*j, width, height);
-                        printf("sort=2/3 win: %lx, W: %ld, H: %d, w: %d, h %d, visible: %d\n",clients.at(k).win,width*(d-j), height*j, width, height,clients[k].visible);
+                        XMoveResizeWindow(dpy, clients.at(k).win, width*(d-j+1), height*j, width, height);
+                        printf("sort=2/3 win: %lx, W: %ld, H: %d, w: %d, h %d, visible: %d\n",clients.at(k).win,width*(d-j+1), height*j, width,
+height,clients[k].visible);
+
                      }
 
-                     if(clients[k].visible!=true){
+
                         XMapWindow(dpy,clients[k].win);
                         clients[k].visible=true;
-                     }
+
                      d++;
                      printf("D: %d \n",d);
                   }
@@ -303,20 +332,20 @@ if (sort==1){
 
          }
          bool hit=false;
-            int b =size;
+            int b =size,o=1;
+            if(desktopWin>1)o=2;
          while(!hit){
             if(clients[b].desktop==desktop){
-               XMoveResizeWindow(dpy, clients[b].win, width*((size/rows)), 0, width, height*2);
-               printf("sort=2/32 win: %lx, W: %ld, H: %d, w: %d, h %d\n",clients[b].win,width*((size/rows)), 0, width, height*2);
+               XMoveResizeWindow(dpy, clients[b].win, width*((desktopWin/rows)), 0, width, height*o);
+               printf("sort=2/32 win: %lx, W: %ld, H: %d, w: %d, h %d\n",clients[b].win,width*((desktopWin/rows)), 0, width, height*o);
                hit=true;
-               if(clients[b].visible!=true){
                   XMapWindow(dpy,clients[b].win);
                   clients[b].visible=true;
-                  printf("sort=2/23 win: %lx,visible: %d\n",clients[b].win,clients[b].visible);
-               }
+
             }
             else b--;
          }
+
       }
       printf("\nSorted \n");
       return;
